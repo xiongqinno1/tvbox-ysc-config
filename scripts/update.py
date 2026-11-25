@@ -89,7 +89,25 @@ def idn_encode(url: str) -> str:
     return urllib.parse.urlunsplit(
         (parsed.scheme, netloc, parsed.path, parsed.query, parsed.fragment)
     )
-
+#加的
+def is_image_bytes(raw: bytes, content_type: str = "") -> bool:
+    """判断响应是否为图片：优先看 content-type，再看魔数。"""
+    ct = (content_type or "").lower()
+    if ct.startswith("image/"):
+        return True
+    if not raw:
+        return False
+    if raw[:3] == b"\xff\xd8\xff":                     # JPEG
+        return True
+    if raw[:8] == b"\x89PNG\r\n\x1a\n":                # PNG
+        return True
+    if raw[:6] in (b"GIF87a", b"GIF89a"):              # GIF
+        return True
+    if raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":    # WEBP
+        return True
+    if raw[:2] == b"BM":                               # BMP
+        return True
+    return False
 
 def is_valid_tvbox_config(data) -> bool:
     """粗略校验：返回内容是否像 TVBox/影视仓 配置（单仓或多仓订阅）。"""
@@ -121,10 +139,13 @@ def _should_retry(err: Exception, resp_text_len: int = -1) -> bool:
 
 
 def fetch_config(url: str) -> dict:
-    """抓取单个地址并解析为 JSON dict；失败时抛出异常。"""
+    """抓取单个地址并解析为 JSON dict；失败时抛出异常。
+    若响应是图片，返回 {"__image_url__": <原始URL>}。
+    """
     target = idn_encode(url)
     last_err = None
     for attempt in range(1, MAX_RETRIES + 1):
+        resp = None
         try:
             resp = requests.get(
                 target,
@@ -136,13 +157,21 @@ def fetch_config(url: str) -> dict:
                 allow_redirects=True,
             )
             resp.raise_for_status()
+
+            # 新增：先判断是不是图片
+            raw = resp.content
+            ct = resp.headers.get("Content-Type", "")
+            if is_image_bytes(raw, ct):
+                print(f"      (返回内容是图片，记录原网址：{target})")
+                return {"__image_url__": target}
+
             data = parse_json_lenient(resp.text)
             if not is_valid_tvbox_config(data):
                 raise ValueError("返回内容不是 TVBox 配置（缺少 sites/spiders/lives 或 urls 字段）")
             return data
         except Exception as e:  # noqa: BLE001
             last_err = e
-            text_len = len(getattr(resp, "text", "") or "") if "resp" in locals() else -1
+            text_len = len(getattr(resp, "text", "") or "") if resp is not None else -1
             if _should_retry(e, text_len) and attempt < MAX_RETRIES:
                 wait = RETRY_BACKOFF * attempt * 2
                 print(f"      (第 {attempt} 次失败：{e}，{wait}s 后重试)")
@@ -236,9 +265,11 @@ def update_readme(status, ok_count, total):
     lines.append("")
     lines.append("| 配置源 | 状态 | 使用地址 |")
     lines.append("| --- | --- | --- |")
-    for s in status["sources"]:
+       for s in status["sources"]:
         if s.get("cached"):
             lines.append(f"| {s['name']} | 📦 缓存 | 上次成功配置（本次更新未抓到，沿用缓存） |")
+        elif s.get("image"):
+            lines.append(f"| {s['name']} | 🖼 图片 | `{s['used_url']}`（已记录原网址，非 TVBox 配置） |")
         elif s["ok"]:
             lines.append(f"| {s['name']} | ✅ 成功 | `{s['used_url']}` |")
         else:
@@ -307,6 +338,21 @@ def main() -> int:
         for url in urls:
             try:
                 data = fetch_config(url)
+                # ===== 新增：图片源 → 把原网址写进 output/<sid>.json，不参与聚合 =====
+                if isinstance(data, dict) and "__image_url__" in data:
+                    img_url = data["__image_url__"]
+                    out_path = os.path.join(OUTPUT_DIR, f"{sid}.json")
+                    with open(out_path, "w", encoding="utf-8") as f:
+                        json.dump(img_url, f, ensure_ascii=False)
+                    entry["ok"] = True
+                    entry["used_url"] = url
+                    entry["error"] = "图片源，已记录原网址"
+                    entry["image"] = True
+                    ok_count += 1
+                    saved = True
+                    print(f"[IMG]  {name} <- {url}  (图片，已记录原网址)")
+                    break
+                # ===== 新增结束 =====
                 out_path = os.path.join(OUTPUT_DIR, f"{sid}.json")
                 with open(out_path, "w", encoding="utf-8") as f:
                     json.dump(data, f, ensure_ascii=False, indent=2)
