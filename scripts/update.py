@@ -265,7 +265,7 @@ def update_readme(status, ok_count, total):
     lines.append("")
     lines.append("| 配置源 | 状态 | 使用地址 |")
     lines.append("| --- | --- | --- |")
-       for s in status["sources"]:
+    for s in status["sources"]:
         if s.get("cached"):
             lines.append(f"| {s['name']} | 📦 缓存 | 上次成功配置（本次更新未抓到，沿用缓存） |")
         elif s.get("image"):
