@@ -141,7 +141,8 @@ def _should_retry(err: Exception, resp_text_len: int = -1) -> bool:
 
 def fetch_config(url: str) -> dict:
     """抓取单个地址并解析为 JSON dict；失败时抛出异常。
-    若响应是图片，返回 {"__image_url__": <原始URL>}。
+    - 图片响应：先转 latin-1 找 "spider"，截到末尾返回 {"__raw_content__": ...}；
+                找不到则返回 {"__image_url__": <原始URL>}
     """
     target = idn_encode(url)
     last_err = None
@@ -158,12 +159,30 @@ def fetch_config(url: str) -> dict:
                 allow_redirects=True,
             )
             resp.raise_for_status()
-            # 新增：先判断是不是图片
+
             raw = resp.content
             ct = resp.headers.get("Content-Type", "")
             print(f"      (debug) ct={ct!r} len={len(raw)} head={raw[:100]!r}")
+
             if is_image_bytes(raw, ct):
-                print(f"      (返回内容是图片，记录原网址：{target})")
+                # 先尝试：图片里可能藏着 JSON，转 latin-1 找 "spider"
+                latin = raw.decode("latin-1", errors="ignore")
+                start = -1
+                for marker in ('{"spider"', '{ "spider"', '{\n  "spider"', '{\r\n  "spider"'):
+                    idx = latin.find(marker)
+                    if idx != -1:
+                        start = idx
+                        break
+                if start == -1:
+                    sidx = latin.find('"spider"')
+                    if sidx != -1:
+                        start = latin.rfind("{", 0, sidx)
+                if start != -1:
+                    snippet = latin[start:]
+                    print(f"      (图片中截取到 spider 段，长度 {len(snippet)}，写入 raw_content)")
+                    return {"__raw_content__": snippet}
+                # 截不到，才回退到“记录原网址”
+                print(f"      (返回内容是图片，未找到 spider，记录原网址：{target})")
                 return {"__image_url__": target}
 
             data = parse_json_lenient(resp.text)
@@ -172,7 +191,7 @@ def fetch_config(url: str) -> dict:
             return data
         except Exception as e:  # noqa: BLE001
             last_err = e
-            # ===== 新增：JSON 解析失败 → 转 latin-1，找 {"spider" 起点，截到末尾 =====
+            # ===== 非图片的 JSON 解析失败 → 转 latin-1，找 {"spider" 起点，截到末尾 =====
             if isinstance(e, json.JSONDecodeError) and resp is not None:
                 raw = resp.content
                 latin = raw.decode("latin-1", errors="ignore")
