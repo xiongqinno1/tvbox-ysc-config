@@ -165,25 +165,28 @@ def fetch_config(url: str) -> dict:
             print(f"      (debug) ct={ct!r} len={len(raw)} head={raw[:100]!r}")
 
             if is_image_bytes(raw, ct):
-                # 先尝试：图片里可能藏着 JSON，转 latin-1 找 "spider"
-                latin = raw.decode("latin-1", errors="ignore")
-                start = -1
-                for marker in ('{"spider"', '{ "spider"', '{\n  "spider"', '{\r\n  "spider"'):
-                    idx = latin.find(marker)
-                    if idx != -1:
-                        start = idx
-                        break
-                if start == -1:
-                    sidx = latin.find('"spider"')
-                    if sidx != -1:
-                        start = latin.rfind("{", 0, sidx)
-                if start != -1:
-                    snippet = latin[start:]
-                    print(f"      (图片中截取到 spider 段，长度 {len(snippet)}，写入 raw_content)")
-                    return {"__raw_content__": snippet}
-                # 截不到，才回退到“记录原网址”
-                print(f"      (返回内容是图片，未找到 spider，记录原网址：{target})")
-                return {"__image_url__": target}
+              latin = raw.decode("latin-1", errors="ignore")
+              # 找最后一个 ** 标记
+              last_idx = latin.rfind("**")
+              if last_idx != -1:
+              b64_str = latin[last_idx + 2:].strip()
+                try:
+                import base64
+                decoded = base64.b64decode(b64_str).decode("utf-8", errors="ignore")
+                # 解码后是 JSON 字符串，尝试解析
+                data = parse_json_lenient(decoded)
+                if is_valid_tvbox_config(data):
+                  print(f"      (图片伪装 Base64 解码成功，得到合法配置)")
+                  return data
+            else:
+                # 解码了但不是 TVBox 配置，可以按原逻辑存 raw
+                print(f"      (解码后不是合法 TVBox 配置)")
+                return {"__raw_content__": decoded}
+            except Exception as e:
+                print(f"      (Base64 解码失败：{e})")
+            # 没有 ** 标记，回退到记录原网址
+            print(f"      (图片中未找到 ** 标记，记录原网址)")
+            return {"__image_url__": target}
 
             data = parse_json_lenient(resp.text)
             if not is_valid_tvbox_config(data):
