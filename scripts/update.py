@@ -160,8 +160,12 @@ def fetch_config(url: str) -> dict:
             resp.raise_for_status()
 
             # 新增：先判断是不是图片
+                        resp.raise_for_status()
+
+            # 新增：先判断是不是图片
             raw = resp.content
             ct = resp.headers.get("Content-Type", "")
+            print(f"      (debug) ct={ct!r} len={len(raw)} head={raw[:100]!r}")
             if is_image_bytes(raw, ct):
                 print(f"      (返回内容是图片，记录原网址：{target})")
                 return {"__image_url__": target}
