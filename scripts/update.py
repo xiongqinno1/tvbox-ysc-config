@@ -1,3 +1,4 @@
+#!usrbinenv python3.txt
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -171,6 +172,25 @@ def fetch_config(url: str) -> dict:
             return data
         except Exception as e:  # noqa: BLE001
             last_err = e
+            # ===== 新增：JSON 解析失败 → 转 latin-1，找 {"spider" 起点，截到末尾 =====
+            if isinstance(e, json.JSONDecodeError) and resp is not None:
+                raw = resp.content
+                latin = raw.decode("latin-1", errors="ignore")
+                start = -1
+                for marker in ('{"spider"', '{ "spider"', '{\n  "spider"', '{\r\n  "spider"'):
+                    idx = latin.find(marker)
+                    if idx != -1:
+                        start = idx
+                        break
+                if start == -1:
+                    sidx = latin.find('"spider"')
+                    if sidx != -1:
+                        start = latin.rfind("{", 0, sidx)
+                if start != -1:
+                    snippet = latin[start:]
+                    print(f"      (latin-1 截取 spider 起点的内容，长度 {len(snippet)})")
+                    return {"__raw_content__": snippet}
+            # ===== 新增结束 =====
             text_len = len(getattr(resp, "text", "") or "") if resp is not None else -1
             if _should_retry(e, text_len) and attempt < MAX_RETRIES:
                 wait = RETRY_BACKOFF * attempt * 2
@@ -351,6 +371,21 @@ def main() -> int:
                     ok_count += 1
                     saved = True
                     print(f"[IMG]  {name} <- {url}  (图片，已记录原网址)")
+                    break
+                # ===== 新增结束 =====
+                # ===== 新增：latin-1 截取的原始内容 → 原样写入 output/<sid>.json =====
+                if isinstance(data, dict) and "__raw_content__" in data:
+                    raw_text = data["__raw_content__"]
+                    out_path = os.path.join(OUTPUT_DIR, f"{sid}.json")
+                    with open(out_path, "w", encoding="utf-8") as f:
+                        f.write(raw_text)
+                    entry["ok"] = True
+                    entry["used_url"] = url
+                    entry["error"] = "latin-1 截取 spider 段，已原样保存"
+                    entry["raw"] = True
+                    ok_count += 1
+                    saved = True
+                    print(f"[RAW]  {name} <- {url}  (截取 spider 段，已原样保存)")
                     break
                 # ===== 新增结束 =====
                 out_path = os.path.join(OUTPUT_DIR, f"{sid}.json")
