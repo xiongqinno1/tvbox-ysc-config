@@ -35,7 +35,7 @@ OUTPUT_DIR = os.path.join(ROOT, "output")
 DEFAULT_REPO = "YOUR_USERNAME/tvbox-ysc-config"  # 本地运行时的占位仓库名，GitHub Actions 会自动覆盖
 
 # 注意：部分接口的反爬会针对"完整 Chrome UA"下发挑战页，反而用简洁 UA 能正常返回 JSON
-USER_AGENT = "Mozilla/5.0"
+USER_AGENT = "okhttp/3.12.13"
 
 TIMEOUT = 15  # 单个地址超时（秒）
 MAX_RETRIES = 2  # 单个地址最大尝试次数（仅对超时/连接类瞬态错误重试）
