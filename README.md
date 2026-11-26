@@ -12,20 +12,20 @@
 ## 一、源可用性状态
 
 <!-- STATUS_START -->
-> 🔄 最近更新：2026-11-27 06:49:52（北京时间） · 成功 **10/10** 个源
+> 🔄 最近更新：2026-11-27 07:51:24（北京时间） · 成功 **10/10** 个源
 
 | 配置源 | 状态 | 使用地址 |
 | --- | --- | --- |
-| 肥猫 | ✅ 成功 | `https://6296.kstore.vip/facat.json` |
-| 饭太硬 | 🖼 图片 | `http://www.饭太硬.cc/tv`（已记录原网址，非 TVBox 配置） |
-| 王二小 | ✅ 成功 | `https://d.kstore.dev/download/9280/wex.json` |
-| 老刘备 | ✅ 成功 | `https://raw.liucn.cc/box/m.json` |
-| 小马 | ✅ 成功 | `https://szyyds.cn/tv/x.json` |
+| 肥猫 | 🖼 图片 | `http://肥猫.net/`（已记录原网址，非 TVBox 配置） |
+| 饭太硬 | ✅ 成功 | `http://www.饭太硬.cc/tv` |
+| 王二小 | 🖼 图片 | `https://d.kstore.dev/download/9280/wex.json`（已记录原网址，非 TVBox 配置） |
+| 老刘备 | 🖼 图片 | `https://raw.liucn.cc/box/m.json`（已记录原网址，非 TVBox 配置） |
+| 小马 | 🖼 图片 | `https://szyyds.cn/tv/x.json`（已记录原网址，非 TVBox 配置） |
 | 讴歌 | 📦 缓存 | 上次成功配置（本次更新未抓到，沿用缓存） |
-| 4K小盒子 | ✅ 成功 | `http://xhztv.top/4k.json` |
-| 小盒子单仓 | ✅ 成功 | `http://xhztv.top/xhz` |
-| 拾光多仓 | ✅ 成功 | `http://xmbjm.fh4u.org/dc.txt` |
-| 挺好分享多仓 | ✅ 成功 | `http://ztha.top/TVBox/GYCK.json` |
+| 4K小盒子 | 🖼 图片 | `http://xhztv.top/4k.json`（已记录原网址，非 TVBox 配置） |
+| 小盒子单仓 | 🖼 图片 | `http://xhztv.top/xhz`（已记录原网址，非 TVBox 配置） |
+| 拾光多仓 | 🖼 图片 | `http://xmbjm.fh4u.org/dc.txt`（已记录原网址，非 TVBox 配置） |
+| 挺好分享多仓 | 🖼 图片 | `http://ztha.top/TVBox/GYCK.json`（已记录原网址，非 TVBox 配置） |
 <!-- STATUS_END -->
 
 ## 二、仓库结构

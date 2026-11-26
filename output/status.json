@@ -1,42 +1,45 @@
 {
-  "updated_at": "2026-11-27 06:49:52",
+  "updated_at": "2026-11-27 07:51:24",
   "repo": "xiongqinno1/tvbox-ysc-config",
   "sources": [
     {
       "id": "feimao",
       "name": "肥猫",
       "ok": true,
-      "used_url": "https://6296.kstore.vip/facat.json",
-      "error": null
+      "used_url": "http://肥猫.net/",
+      "error": "图片源，已记录原网址",
+      "image": true
     },
     {
       "id": "fantaiying",
       "name": "饭太硬",
       "ok": true,
       "used_url": "http://www.饭太硬.cc/tv",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "error": null
     },
     {
       "id": "wangerxiao",
       "name": "王二小",
       "ok": true,
       "used_url": "https://d.kstore.dev/download/9280/wex.json",
-      "error": null
+      "error": "图片源，已记录原网址",
+      "image": true
     },
     {
       "id": "laoliubei",
       "name": "老刘备",
       "ok": true,
       "used_url": "https://raw.liucn.cc/box/m.json",
-      "error": null
+      "error": "图片源，已记录原网址",
+      "image": true
     },
     {
       "id": "xiaoma",
       "name": "小马",
       "ok": true,
       "used_url": "https://szyyds.cn/tv/x.json",
-      "error": null
+      "error": "图片源，已记录原网址",
+      "image": true
     },
     {
       "id": "ouge",
@@ -51,28 +54,32 @@
       "name": "4K小盒子",
       "ok": true,
       "used_url": "http://xhztv.top/4k.json",
-      "error": null
+      "error": "图片源，已记录原网址",
+      "image": true
     },
     {
       "id": "xiaohezi",
       "name": "小盒子单仓",
       "ok": true,
       "used_url": "http://xhztv.top/xhz",
-      "error": null
+      "error": "图片源，已记录原网址",
+      "image": true
     },
     {
       "id": "shiguang",
       "name": "拾光多仓",
       "ok": true,
       "used_url": "http://xmbjm.fh4u.org/dc.txt",
-      "error": null
+      "error": "图片源，已记录原网址",
+      "image": true
     },
     {
       "id": "tinghao",
       "name": "挺好分享多仓",
       "ok": true,
       "used_url": "http://ztha.top/TVBox/GYCK.json",
-      "error": null
+      "error": "图片源，已记录原网址",
+      "image": true
     }
   ]
 }
