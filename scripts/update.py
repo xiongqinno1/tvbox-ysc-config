@@ -169,7 +169,7 @@ def fetch_config(url: str) -> dict:
               # 找最后一个 ** 标记
               last_idx = latin.rfind("**")
               if last_idx != -1:
-              b64_str = latin[last_idx + 2:].strip()
+                b64_str = latin[last_idx + 2:].strip()
                 try:
                 import base64
                 decoded = base64.b64decode(b64_str).decode("utf-8", errors="ignore")
