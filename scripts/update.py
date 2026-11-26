@@ -141,8 +141,8 @@ def _should_retry(err: Exception, resp_text_len: int = -1) -> bool:
 
 def fetch_config(url: str) -> dict:
     """抓取单个地址并解析为 JSON dict；失败时抛出异常。
-    - 图片响应：先转 latin-1 找 "spider"，截到末尾返回 {"__raw_content__": ...}；
-                找不到则返回 {"__image_url__": <原始URL>}
+    - 图片响应：先转 latin-1 找最后一个 "**" 标记，截取其后内容做 Base64 解码；
+                解码成功且是合法配置则返回 data，否则回退记录原网址。
     """
     target = idn_encode(url)
     last_err = None
@@ -165,27 +165,23 @@ def fetch_config(url: str) -> dict:
             print(f"      (debug) ct={ct!r} len={len(raw)} head={raw[:100]!r}")
 
             if is_image_bytes(raw, ct):
-              latin = raw.decode("latin-1", errors="ignore")
-              # 找最后一个 ** 标记
-              last_idx = latin.rfind("**")
-              if last_idx != -1:
-                b64_str = latin[last_idx + 2:].strip()
-                try:
-                  decoded = base64.b64decode(b64_str).decode("utf-8", errors="ignore")
-                  # 解码后是 JSON 字符串，尝试解析
-                  data = parse_json_lenient(decoded)
-                  if is_valid_tvbox_config(data):
-                    print(f"      (图片伪装 Base64 解码成功，得到合法配置)")
-                    return data
-                  else:
-                  # 解码了但不是 TVBox 配置，可以按原逻辑存 raw
-                    print(f"      (解码后不是合法 TVBox 配置)")
-                    return {"__raw_content__": decoded}
-                except Exception as e:
-                  print(f"      (Base64 解码失败：{e})")
-            # 没有 ** 标记，回退到记录原网址
-            print(f"      (图片中未找到 ** 标记，记录原网址)")
-            return {"__image_url__": target}
+                latin = raw.decode("latin-1", errors="ignore")
+                last_idx = latin.rfind("**")
+                if last_idx != -1:
+                    b64_str = latin[last_idx + 2:].strip()
+                    try:
+                        decoded = base64.b64decode(b64_str).decode("utf-8", errors="ignore")
+                        data = parse_json_lenient(decoded)
+                        if is_valid_tvbox_config(data):
+                            print(f"      (图片伪装 Base64 解码成功，得到合法配置)")
+                            return data
+                        else:
+                            print(f"      (解码后不是合法 TVBox 配置)")
+                            return {"__raw_content__": decoded}
+                    except Exception as e:
+                        print(f"      (Base64 解码失败：{e})")
+                print(f"      (图片中未找到 ** 标记，记录原网址)")
+                return {"__image_url__": target}
 
             data = parse_json_lenient(resp.text)
             if not is_valid_tvbox_config(data):
@@ -193,7 +189,6 @@ def fetch_config(url: str) -> dict:
             return data
         except Exception as e:  # noqa: BLE001
             last_err = e
-            # ===== 非图片的 JSON 解析失败 → 转 latin-1，找 {"spider" 起点，截到末尾 =====
             if isinstance(e, json.JSONDecodeError) and resp is not None:
                 raw = resp.content
                 latin = raw.decode("latin-1", errors="ignore")
@@ -211,7 +206,6 @@ def fetch_config(url: str) -> dict:
                     snippet = latin[start:]
                     print(f"      (latin-1 截取 spider 起点的内容，长度 {len(snippet)})")
                     return {"__raw_content__": snippet}
-            # ===== 新增结束 =====
             text_len = len(getattr(resp, "text", "") or "") if resp is not None else -1
             if _should_retry(e, text_len) and attempt < MAX_RETRIES:
                 wait = RETRY_BACKOFF * attempt * 2
