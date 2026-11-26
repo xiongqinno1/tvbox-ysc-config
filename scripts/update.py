@@ -158,10 +158,6 @@ def fetch_config(url: str) -> dict:
                 allow_redirects=True,
             )
             resp.raise_for_status()
-
-            # 新增：先判断是不是图片
-                        resp.raise_for_status()
-
             # 新增：先判断是不是图片
             raw = resp.content
             ct = resp.headers.get("Content-Type", "")
