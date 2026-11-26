@@ -1,14 +1,13 @@
 {
-  "updated_at": "2026-11-27 07:51:24",
+  "updated_at": "2026-11-27 07:59:55",
   "repo": "xiongqinno1/tvbox-ysc-config",
   "sources": [
     {
       "id": "feimao",
       "name": "肥猫",
       "ok": true,
-      "used_url": "http://肥猫.net/",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "used_url": "https://6296.kstore.vip/facat.json",
+      "error": null
     },
     {
       "id": "fantaiying",
@@ -22,24 +21,21 @@
       "name": "王二小",
       "ok": true,
       "used_url": "https://d.kstore.dev/download/9280/wex.json",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "error": null
     },
     {
       "id": "laoliubei",
       "name": "老刘备",
       "ok": true,
       "used_url": "https://raw.liucn.cc/box/m.json",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "error": null
     },
     {
       "id": "xiaoma",
       "name": "小马",
       "ok": true,
       "used_url": "https://szyyds.cn/tv/x.json",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "error": null
     },
     {
       "id": "ouge",
@@ -54,32 +50,28 @@
       "name": "4K小盒子",
       "ok": true,
       "used_url": "http://xhztv.top/4k.json",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "error": null
     },
     {
       "id": "xiaohezi",
       "name": "小盒子单仓",
       "ok": true,
       "used_url": "http://xhztv.top/xhz",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "error": null
     },
     {
       "id": "shiguang",
       "name": "拾光多仓",
       "ok": true,
       "used_url": "http://xmbjm.fh4u.org/dc.txt",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "error": null
     },
     {
       "id": "tinghao",
       "name": "挺好分享多仓",
       "ok": true,
       "used_url": "http://ztha.top/TVBox/GYCK.json",
-      "error": "图片源，已记录原网址",
-      "image": true
+      "error": null
     }
   ]
 }
