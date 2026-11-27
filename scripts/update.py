@@ -162,7 +162,7 @@ def fetch_config(url: str) -> dict:
 
             raw = resp.content
             ct = resp.headers.get("Content-Type", "")
-            print(f"      (debug) ct={ct!r} len={len(raw)} head={raw[:100]!r}")
+            
 
             if is_image_bytes(raw, ct):
                 latin = raw.decode("latin-1", errors="ignore")
